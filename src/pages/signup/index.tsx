@@ -1,30 +1,32 @@
-import { useContext, FormEvent, useState } from "react";
+import { useState, FormEvent, useContext } from "react";
 
 import Head from "next/head";
 
-import { Input } from "../components/ui/Input";
-import { Button } from "../components/ui/Button";
+import LogoImg from '../../../public/logo.svg'
+import Image from "next/image";
+
+import { Input } from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
+
+import { AuthContext } from "../../contexts/AuthContext";
 
 import { toast } from "react-toastify";
 
 import Link from "next/link";
 
-import { canSSRGuest } from "../utils/canSSRGuest";
+export default function SignUp() {
+  const { signUp } = useContext(AuthContext);
 
-import { AuthContext } from "../contexts/AuthContext";
-
-export default function Home() {
-  const {signIn} = useContext(AuthContext)
-
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const [loading, setLoading] = useState(false);
-
-  async function handleLogin(e: FormEvent) {
+  
+  async function handleSignUp(e: FormEvent) {
     e.preventDefault();
 
-    if(email === '' || password === '') {
+    if(name === '' || email === '' || password === '') {
       toast.warning('Preencha todos os campos');
       return;
     }
@@ -32,13 +34,12 @@ export default function Home() {
     setLoading(true);
 
     let data = {
+      name,
       email,
       password
     }
 
-    console.log('dfçklsjaflaiksjflkajflçkjadlk',signIn(data))
-    await signIn(data)
-
+    await signUp(data)
 
     setLoading(false);
   }
@@ -46,35 +47,31 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Gerenciado de Tarefas - Faça seu login</title>
+        <title>Faça o seu cadastro agora!</title>
       </Head>
       <div className="min-h-[100vh] flex justify-center items-center flex-col bg-grey-900">
         <h1 className="text-2xl md:text-6xl font-bold text-white">Gerenciador de <span className="text-red-900">tarefas</span></h1>
 
         <div className="mt-8 w-full md:w-[600px] flex items-center justify-center flex-col py-8 px-8">
-          <form className="w-11/12 flex flex-col" onSubmit={handleLogin}>
+          <h1 className="text-white pb-4 font-semibold text-xl md:text-3xl">Criando sua conta</h1>
+
+          <form className="w-11/12 flex flex-col" onSubmit={handleSignUp}>
+            <Input type="text" placeholder="Digite seu nome" value={name} onChange={ (e) => setName(e.target.value)}/>
+
             <Input type="text" placeholder="Digite o seu email" value={email} onChange={ (e) => setEmail(e.target.value)}/>
 
             <Input type="password" placeholder="Sua senha" value={password} onChange={ (e) => setPassword(e.target.value)}/>
 
             <Button type="submit" loading={loading}>
-              Acessar
+              Cadastrar
             </Button>
           </form>
 
-          <Link href="/signup" className="mt-4">   
-            <span className="text-white cursor-pointer">Não possui uma conta? Cadastre-se</span>
+          <Link href="/" className="mt-4">   
+            <span className="text-white cursor-pointer">Já possui uma conta? Faça o login!</span>
           </Link>
         </div>
       </div>
     </>
   );
 }
-
-
-export const getServerSideProps = canSSRGuest( async (ctx) => {
-  
-  return {
-    props: {}
-  }
-})
