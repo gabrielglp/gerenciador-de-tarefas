@@ -49,7 +49,7 @@ export default function Home() {
       <div className="min-h-[100vh] flex justify-center items-center flex-col bg-grey-900">
         <h1 className="text-2xl md:text-6xl font-bold text-white">Gerenciador de <span className="text-red-900">tarefas</span></h1>
 
-        <div className="mt-8 w-full md:w-[600px] flex items-center justify-center flex-col py-8 px-8">
+        <div className="mt-8 w-full md:w-custom-600 flex items-center justify-center flex-col py-8 px-8">
           <form className="w-11/12 flex flex-col" onSubmit={handleLogin}>
             <Input type="text" placeholder="Digite o seu email" value={email} onChange={ (e) => setEmail(e.target.value)}/>
 

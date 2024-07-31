@@ -93,7 +93,7 @@ import { toast } from "react-toastify";
                 </Head>
                 <div>
                     <Header />
-                    <main className="max-w-[720px] m-16 mx-auto px-8 flex flex-col">
+                    <main className="max-w-custom-720 m-16 mx-auto px-8 flex flex-col">
                         <div className="flex flex-col md:flex-row justify-between items-center">
                             <div className="flex">
                                 <h1 className="text-white text-xl md:text-3xl mr-4">Todas as tarefas</h1>

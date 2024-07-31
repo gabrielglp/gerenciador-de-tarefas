@@ -11,7 +11,7 @@ export function Header() {
 
     return (
         <header className="h-20 ">
-            <div className="max-w-[1120px] h-20 mx-auto px-8 flex justify-center items-center">
+            <div className="max-w-custom-1120 h-20 mx-auto px-8 flex justify-center items-center">
                 <Link href={"/taskManager"}>
                     <h1 className="text-xl sm:text-3xl font-bold text-white">Gerenciador de <span className="text-red-900">tarefas</span></h1>
                 </Link>

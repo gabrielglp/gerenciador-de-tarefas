@@ -58,7 +58,7 @@ export function ModalNewTask({ isOpen, onRequestClose, handleAddTask }: ModalNew
         <FiX size={45} color="#f34748"/>
       </button>
 
-      <div className="w-72 mm:w-80 sm:w-96 md:w-[620px] bg-dark-700 text-white">
+      <div className="w-72 mm:w-80 sm:w-96 md:w-custom-620 bg-dark-700 text-white">
         <h2 className="my-4">Nova Tarefa</h2>
         <div className="mb-4">
           <input 

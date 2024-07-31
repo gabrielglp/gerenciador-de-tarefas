@@ -11,6 +11,15 @@ module.exports = {
       screens: {
         mm: '410px',
       },
+      width: {
+        'custom-620': '620px',
+        'custom-600': '600px',
+      },
+      maxWidth: {
+        'custom-1120': '1120px',
+        'custom-720': '720px',
+        'custom-600': '600px',
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
