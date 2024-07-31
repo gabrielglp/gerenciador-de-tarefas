@@ -29,7 +29,7 @@ export default function SignUp() {
   async function handleSignUp(e: FormEvent) {
     e.preventDefault();
 
-    if(name === '' && email === '' && password === '') {
+    if (name === '' || email === '' || password === '') {
       toast.warning('Preencha todos os campos');
       return;
     }
@@ -38,8 +38,10 @@ export default function SignUp() {
 
     try {
       await signUp({ email, name, password });
-    } catch (error) {
-      console.error('Erro ao cadastrar usuário:', error);
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        toast.error('Email já está em uso');
+      }
     } finally {
       setLoading(false);
     }

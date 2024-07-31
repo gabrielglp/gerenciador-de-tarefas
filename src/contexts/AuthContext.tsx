@@ -115,10 +115,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
             toast.success('Cadastro criado com sucesso!');
             Router.push('/');
-
-        } catch(err) {
-            toast.error('Erro ao cadastrar usuario.')
-            console.log('Error when registering user', err)
+        } catch (err: any) {
+            if (err.response?.status === 409) {
+                toast.error('Email já está em uso');
+            } else {
+                toast.error('Erro ao cadastrar usuário.');
+            }
+            console.log('Error when registering user', err);
         }
     }
 
