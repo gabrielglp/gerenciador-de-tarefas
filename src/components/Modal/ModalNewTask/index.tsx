@@ -1,5 +1,7 @@
 import Modal from "react-modal";
 
+import { toast } from "react-toastify";
+
 import { FiX } from "react-icons/fi";
 import { useState } from "react";
 
@@ -27,10 +29,18 @@ export function ModalNewTask({ isOpen, onRequestClose, handleAddTask }: ModalNew
   }
 
   const handleSubmit = () => {
+
+    if(title === '' || description === '') {
+      toast.warning('Preencha todos os campos');
+      return;
+    }
+
     handleAddTask(title, description);
     setTitle("");
     setDescription("");
     onRequestClose();
+
+    toast.success('Tarefa adicionada.');
   };
 
   return (

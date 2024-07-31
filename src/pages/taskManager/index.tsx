@@ -1,18 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { canSSRAuth } from "../../utils/canSSRAuth";
 
 import Head from "next/head";
 import { Header } from "../../components/Header";
 
-import { MdEdit, MdDeleteOutline } from "react-icons/md";
+import { MdDeleteOutline } from "react-icons/md";
 import { FiRefreshCcw } from 'react-icons/fi';
 
 import Modal from 'react-modal';
 
 import { setupAPIClient } from "../../services/api";
-import { ModalNewTask } from "../../components/ModalNewTask";
+import { ModalNewTask } from "../../components/Modal/ModalNewTask";
+import { ModalDeleteTask } from "../../components/Modal/ModalDeleteTask";
+
+import { useAuth } from '../../contexts/AuthContext';
 
 import 'animate.css';
+import { toast } from "react-toastify";
 
     type TaskProps = {
         id: string;
@@ -26,42 +30,55 @@ import 'animate.css';
     }
 
     export default function TaskManager({ initialTasks }: HomeProps) {
+        const { user } = useAuth();
 
         const [tasks, setTasks] = useState<TaskProps[]>(initialTasks);
         const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+
+        const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
+        const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
         async function handleFinishItem() {
             const apiClient = setupAPIClient();
             
             try {
                 const response = await apiClient.get('/tasks');
-                console.log('Tipo de response.data:', Array.isArray(response.data));
                 setTasks(response.data);
             } catch (error) {
                 console.error("Erro ao buscar tarefas:", error);
             }
         }
 
-        async function handleDeleteTask(id: string) {
+        async function handleDeleteTask() {
             const apiClient = setupAPIClient();
             
             try {
-                await apiClient.delete(`/tasks/${id}`);
-                setTasks(tasks.filter(task => task.id !== id));
+                if (taskToDelete) {
+                    await apiClient.delete(`/tasks/${taskToDelete}`);
+                    setTasks(tasks.filter(task => task.id !== taskToDelete));
+                    setTaskToDelete(null);
+                    setIsDeleteTaskModalOpen(false);
+                    toast.success('Tarefa Deletada.');
+                }
             } catch (error) {
                 console.error("Erro ao deletar tarefa:", error);
             }
         }
 
-        function handleEditTask () {
-            alert('teste')
+        function openDeleteTaskModal(id: string) {
+            setTaskToDelete(id);
+            setIsDeleteTaskModalOpen(true);
         }
 
         async function handleAddTask(title: string, description: string) {
             const apiClient = setupAPIClient();
             try {
-                const response = await apiClient.post('/tasks', { title, description, user_id: "6e915d08-f0b2-424f-9df7-492fd59ba954" });
-                setTasks([...tasks, response.data]);
+                if (user) {
+                    const response = await apiClient.post('/tasks', { title, description, userId: user.id });
+                    setTasks([...tasks, response.data]);
+                } else {
+                    toast.error('Usuário não autenticado.');
+                }
             } catch (error) {
                 console.error("Erro ao adicionar tarefa:", error);
             }
@@ -108,10 +125,7 @@ import 'animate.css';
                                         <div className="flex justify-between items-center w-[98%] mb-4">
                                             <h1 className="font-bold text-base md:text-xl">{task.title}</h1>
                                             <div className="flex space-x-4">
-                                                <button onClick={() => handleEditTask()}>
-                                                    <MdEdit color="#FFF" size={18} />
-                                                </button>
-                                                <button onClick={() => handleDeleteTask(task.id)}>
+                                                <button onClick={() => openDeleteTaskModal(task.id)}>
                                                     <MdDeleteOutline color="#FF5757" size={18} />
                                                 </button>
                                             </div>
@@ -127,20 +141,33 @@ import 'animate.css';
                         onRequestClose={() => setIsNewTaskModalOpen(false)} 
                         handleAddTask={handleAddTask} 
                     />
+                    <ModalDeleteTask
+                        isOpen={isDeleteTaskModalOpen}
+                        onRequestClose={() => setIsDeleteTaskModalOpen(false)}
+                        onConfirmDelete={handleDeleteTask}
+                    />
                 </div>
             </>
         );
     }
 
-export const getServerSideProps = canSSRAuth( async (ctx) => {
-
-    const apiClient = setupAPIClient(ctx);
-
-    const response = await apiClient.get('/tasks')
+    export const getServerSideProps = canSSRAuth(async (ctx) => {
+        const apiClient = setupAPIClient(ctx);
     
-    return {
-        props: {
-            initialTasks: response.data
+        try {
+            const response = await apiClient.get('/tasks');
+            return {
+                props: {
+                    initialTasks: response.data
+                }
+            };
+        } catch (error) {
+            // Redireciona para a página de login se não estiver autenticado
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: false,
+                }
+            };
         }
-    }
-})
+    });

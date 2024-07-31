@@ -22,6 +22,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   async function handleLogin(e: FormEvent) {
+
     e.preventDefault();
 
     if(email === '' || password === '') {
@@ -35,11 +36,8 @@ export default function Home() {
       email,
       password
     }
-
-    console.log('dfçklsjaflaiksjflkajflçkjadlk',signIn(data))
+    
     await signIn(data)
-
-
     setLoading(false);
   }
 

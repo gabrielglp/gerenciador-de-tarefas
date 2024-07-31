@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState, useEffect } from "react";
+import { createContext, ReactNode, useState, useEffect, useContext  } from "react";
 
 import { api } from '../services/apiClient';
 
@@ -27,8 +27,8 @@ type SignInProps = {
 }
 
 type SignUpProps = {
-    name: string;
     email: string;
+    name: string;
     password: string;
 }
 
@@ -49,7 +49,7 @@ export function signOut() {
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<UserProps | undefined>(undefined);
-    const isAuthenticated = !!user; // controle de "boolean" se estiver logado ou nao.
+    const isAuthenticated = !!user;
 
     useEffect(() => {
         // cookie
@@ -57,12 +57,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         if(token) {
             api.get('/me').then(response => {
-                const { id, name, email } = response.data;
+                const { id, email, name } = response.data;
 
                 setUser({
                     id,
-                    name,
-                    email
+                    email,
+                    name
                 })
             })
             .catch(() => {
@@ -77,45 +77,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const response = await api.post('/session', {
                 email,
                 password
-            })
-
-            const { id, name, token } = response.data
-
-            setCookie(undefined, '@nextauth.token', token, {
-                maxAge: 60 * 60 * 24 * 30, // expira em 1 mes
-                path: "/" // quais caminhos terao acesso ao cookie
-            })
-
+            });
+    
+            const { id, name, access_token
+            } = response.data;
+    
+            setCookie(undefined, '@nextauth.token', access_token, {
+                maxAge: 60 * 60 * 24 * 30, // expira em 1 mês
+                path: "/" // quais caminhos terão acesso ao cookie
+            });
+    
             setUser({
                 id,
                 name,
                 email,
-            })
-
-            // passar para proximas requisições o token
-            api.defaults.headers['Authorization'] = `Bearer ${token}`
-
-            toast.success('Sucesso ao Logar!')
-
-            //Redirecionar o user para /dashbord
-            Router.push('/taskManager')
-
-        } catch(err) {
-            toast.error('Erro ao acessar')
-            console.log("Access error", err)
+            });
+    
+            api.defaults.headers['Authorization'] = `Bearer ${access_token}`;
+    
+            toast.success('Sucesso ao Logar!');
+    
+            Router.push('/taskManager');
+    
+        } catch (err) {
+            toast.error('Erro ao acessar');
+            console.log("Access error", err);
         }
     }
 
-    async function signUp({ name, email, password }: SignUpProps) {
+    async function signUp({ email, name, password }: SignUpProps) {
         try {
-            const response = api.post('/users', {
-                name,
+            const response = await api.post('/users', {
                 email,
+                name,
                 password
-            })
-
-            toast.success('Cadastro criado com sucesso!')
-
+            });
+    
+            toast.success('Cadastro criado com sucesso!');
             Router.push('/');
 
         } catch(err) {
@@ -129,4 +127,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             {children}
         </AuthContext.Provider>
     );
+}
+
+export function useAuth() {
+    const context = useContext(AuthContext);
+    return context;
 }

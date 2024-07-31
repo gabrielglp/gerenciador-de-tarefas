@@ -1,18 +1,21 @@
-import { useState, FormEvent, useContext } from "react";
+import { FormEvent, useContext, useState } from "react";
 
 import Head from "next/head";
 
-import LogoImg from '../../../public/logo.svg'
-import Image from "next/image";
-
-import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 
 import { AuthContext } from "../../contexts/AuthContext";
 
 import { toast } from "react-toastify";
 
 import Link from "next/link";
+
+// type SignUpData = {
+//   email: string;
+//   password: string;
+//   name: string;
+// };
 
 export default function SignUp() {
   const { signUp } = useContext(AuthContext);
@@ -26,23 +29,21 @@ export default function SignUp() {
   async function handleSignUp(e: FormEvent) {
     e.preventDefault();
 
-    if(name === '' || email === '' || password === '') {
+    if(name === '' && email === '' && password === '') {
       toast.warning('Preencha todos os campos');
       return;
     }
 
     setLoading(true);
 
-    let data = {
-      name,
-      email,
-      password
+    try {
+      await signUp({ email, name, password });
+    } catch (error) {
+      console.error('Erro ao cadastrar usuário:', error);
+    } finally {
+      setLoading(false);
     }
-
-    await signUp(data)
-
-    setLoading(false);
-  }
+}
 
   return (
     <>
